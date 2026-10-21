@@ -1,61 +1,32 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Isolated functional smoke test: no checked-in keys and no command tracing.
+set -euo pipefail
+umask 077
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TEMP="$(mktemp -d "${TMPDIR:-/tmp}/sodix-smoke.XXXXXXXX")"
+trap 'rm -rf -- "$TEMP"' EXIT
 
-# Exit on any error and enable debug output
-set -e
-set -x
-
-# Check if sodix is installed
-if ! command -v sodix &> /dev/null; then
-    echo "Error: sodix is not installed. Please install it first:"
-    echo "cargo install sodix"
-    exit 1
-fi
-
-# Clean up previous test
-rm -rf alice_keys bob_keys
-mkdir -p alice_keys bob_keys
-
-# Generate keys for both parties
-echo "Generating Alice's keys..."
-sodix g -k alice_keys/
-
-echo "Generating Bob's keys..."
-sodix g -k bob_keys/
-
-# Add a small delay to ensure files are written
-sleep 1
-
-# Get public keys and secret keys
-ALICE_PUBLIC=$(cat alice_keys/enc_public.key)
-ALICE_SECRET=$(cat alice_keys/enc_secret.key)
-BOB_PUBLIC=$(cat bob_keys/enc_public.key)
-BOB_SECRET=$(cat bob_keys/enc_secret.key)
-
-echo -e "\nAlice's public key: $ALICE_PUBLIC"
-echo "Bob's public key: $BOB_PUBLIC"
-
-# Test message
-MESSAGE="Hello, Bob!"
-echo -e "\nOriginal message: $MESSAGE"
-
-# Alice encrypts for Bob (using Bob's public key and Alice's secret key)
-echo "Alice encrypting message for Bob..."
-ENCRYPTED=$(sodix e "$MESSAGE" \
-    --pubkey "$BOB_PUBLIC" \
-    --seckey "$ALICE_SECRET")
-echo "Encrypted: $ENCRYPTED"
-
-# Bob decrypts message from Alice (using Alice's public key and Bob's secret key)
-echo -e "\nBob decrypting message from Alice..."
-DECRYPTED=$(sodix d "$ENCRYPTED" \
-    --pubkey "$ALICE_PUBLIC" \
-    --seckey "$BOB_SECRET")
-echo "Decrypted: $DECRYPTED"
-
-# Verify
-if [ "$MESSAGE" = "$DECRYPTED" ]; then
-    echo -e "\nSuccess: Message encrypted and decrypted correctly"
+if command -v sodix >/dev/null 2>&1; then
+    sodix_cmd() { command sodix "$@"; }
 else
-    echo -e "\nError: Decrypted message doesn't match original"
+    command -v cargo >/dev/null 2>&1 || { echo "sodix or cargo is required" >&2; exit 1; }
+    sodix_cmd() { cargo run --quiet --manifest-path "$ROOT/Cargo.toml" -- "$@"; }
+fi
+
+sodix_cmd generate -k "$TEMP/alice" >/dev/null
+sodix_cmd generate -k "$TEMP/bob" >/dev/null
+
+alice_public="$(cat "$TEMP/alice/enc_public.key")"
+alice_private="$(cat "$TEMP/alice/enc_secret.key")"
+bob_public="$(cat "$TEMP/bob/enc_public.key")"
+bob_private="$(cat "$TEMP/bob/enc_secret.key")"
+message="Sodix temporary-key smoke test"
+
+ciphertext="$(sodix_cmd encrypt --pubkey "$bob_public" --seckey "$alice_private" "$message")"
+recovered="$(sodix_cmd decrypt --pubkey "$alice_public" --seckey "$bob_private" "$ciphertext")"
+
+if [[ "$message" != "$recovered" ]]; then
+    echo "FAIL: decrypted message does not match" >&2
     exit 1
 fi
+echo "PASS: isolated encrypt/decrypt roundtrip (temporary keys removed)"

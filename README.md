@@ -128,6 +128,12 @@ git clone https://github.com/ioustamora/sodix.git
 cd sodix && cargo build --release
 ```
 
+## Security and test data
+
+Run `bash test.sh` to exercise an Alice/Bob encrypt/decrypt roundtrip with **fresh temporary keys**; the script deletes them at exit and does not print secrets or enable shell tracing.
+
+**Never reuse** any example private keys previously committed to this repository. Historical Git objects may still contain them, even after their removal from the current tree; rotate any keys ever used outside this demonstration. Sodix is not independently cryptographically audited.
+
 ## License
 
 MIT License

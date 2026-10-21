@@ -1,0 +1,12 @@
+# Rust build artifacts
+/target/
+# IDE
+/.idea/
+# Never commit generated keys or smoke-test credentials
+/alice_keys/
+/bob_keys/
+*.key
+*.pem
+.env
+.env.*
+!.env.example
