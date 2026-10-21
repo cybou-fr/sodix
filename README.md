@@ -1,5 +1,7 @@
 # Sodix
 
+**🇫🇷 [Étude de cas — Rust CLI et cryptographie](docs/CASE_STUDY_FR.md)** — Architecture de l’outil et limites de sécurité.
+
 A Rust CLI tool providing libsodium-compatible cryptographic operations. Uses Ed25519 for signing and Curve25519 for encryption, with hex-encoded keys for easy scripting.
 
 ## Quick Start
