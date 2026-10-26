@@ -1,5 +1,9 @@
 # Sodix
 
+**Étude de cas (FR) :** [outil CLI Rust, intégration de primitives cryptographiques et risques](docs/CASE_STUDY_FR.md) · [Portfolio](https://github.com/cybou-fr)
+
+> **Outil expérimental non audité.** Évitez de transmettre des clés privées en arguments de ligne de commande : elles peuvent être exposées à l'historique, aux journaux et à d'autres processus.
+
 **🇫🇷 [Étude de cas — Rust CLI et cryptographie](docs/CASE_STUDY_FR.md)** — Architecture de l’outil et limites de sécurité.
 
 A Rust CLI tool providing libsodium-compatible cryptographic operations. Uses Ed25519 for signing and Curve25519 for encryption, with hex-encoded keys for easy scripting.
@@ -124,7 +128,7 @@ echo "$dec"
 ## Build
 
 ```bash
-git clone https://github.com/ioustamora/sodix.git
+git clone https://github.com/cybou-fr/sodix.git
 cd sodix && cargo build --release
 ```
 
