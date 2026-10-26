@@ -2,7 +2,7 @@
 
 **Étude de cas (FR) :** [outil CLI Rust, intégration de primitives cryptographiques et risques](docs/CASE_STUDY_FR.md) · [Portfolio](https://github.com/cybou-fr)
 
-> **Outil expérimental non audité.** Évitez de transmettre des clés privées en arguments de ligne de commande : elles peuvent être exposées à l'historique, aux journaux et à d'autres processus.
+> **Experimental, unaudited tool.** Do not pass private keys as command-line arguments: they may be exposed in shell history, process listings or logs.
 
 **🇫🇷 [Étude de cas — Rust CLI et cryptographie](docs/CASE_STUDY_FR.md)** — Architecture de l’outil et limites de sécurité.
 
